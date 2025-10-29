@@ -10,7 +10,7 @@ interface Appointment {
   status: string;
   notes?: string;
   patient: { user: { name: string } };
-  doctor: { user: { name: string }; specialization: string };
+  doctor: { user: { name: string }; specialty: string };
 }
 
 export default function AppointmentsList({
@@ -22,6 +22,7 @@ export default function AppointmentsList({
 }) {
   const router = useRouter();
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
   async function handleDelete(id: string) {
     if (!confirm("Are you sure you want to delete this appointment?")) {
@@ -47,6 +48,35 @@ export default function AppointmentsList({
     }
   }
 
+  async function handleStatusChange(id: string, newStatus: string) {
+    setUpdatingStatus(id);
+
+    try {
+      const response = await fetch(`/api/appointments/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        router.refresh();
+      } else {
+        const data = await response.json();
+        alert(
+          `Failed to update appointment status: ${
+            data.error || "Unknown error"
+          }`
+        );
+      }
+    } catch (error) {
+      alert("Error updating appointment status");
+    } finally {
+      setUpdatingStatus(null);
+    }
+  }
+
   function getStatusColor(status: string) {
     switch (status) {
       case "SCHEDULED":
@@ -62,18 +92,39 @@ export default function AppointmentsList({
     }
   }
 
+  const statuses = ["SCHEDULED", "CONFIRMED", "COMPLETED", "CANCELLED"];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {appointments.map((appointment) => (
         <div key={appointment.id} className="bg-white rounded-lg shadow p-6">
           <div className="flex justify-between items-start mb-2">
-            <span
-              className={`px-2 py-1 rounded text-xs ${getStatusColor(
-                appointment.status
-              )}`}
-            >
-              {appointment.status}
-            </span>
+            {userRole === "DOCTOR" || userRole === "ADMIN" ? (
+              <select
+                value={appointment.status}
+                onChange={(e) =>
+                  handleStatusChange(appointment.id, e.target.value)
+                }
+                disabled={updatingStatus === appointment.id}
+                className={`px-2 py-1 rounded text-xs font-medium cursor-pointer border border-gray-300 ${getStatusColor(
+                  appointment.status
+                )} disabled:cursor-not-allowed disabled:opacity-50`}
+              >
+                {statuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span
+                className={`px-2 py-1 rounded text-xs ${getStatusColor(
+                  appointment.status
+                )}`}
+              >
+                {appointment.status}
+              </span>
+            )}
             {userRole === "ADMIN" && (
               <button
                 onClick={() => handleDelete(appointment.id)}
@@ -106,7 +157,7 @@ export default function AppointmentsList({
             </div>
             <div>
               <span className="text-gray-600">Specialization:</span>{" "}
-              <span>{appointment.doctor.specialization}</span>
+              <span>{appointment.doctor.specialty}</span>
             </div>
             {appointment.reason && (
               <div>
