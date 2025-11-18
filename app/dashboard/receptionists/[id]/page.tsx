@@ -26,6 +26,7 @@ export default async function ReceptionistProfilePage({
     where: { id },
     include: {
       user: true,
+      clinic: true,
     },
   });
 
@@ -134,10 +135,23 @@ export default async function ReceptionistProfilePage({
                   </p>
                 </div>
                 <div>
-                  <span className="text-gray-600 font-medium">User ID:</span>
-                  <p className="text-lg text-sm text-gray-500">
-                    {receptionist.userId}
+                  <span className="text-gray-600 font-medium">Clinic:</span>
+                  <p className="text-lg">
+                    {receptionist.clinic ? (
+                      <Link
+                        href={`/dashboard/clinics/${receptionist.clinic.id}`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {receptionist.clinic.name}
+                      </Link>
+                    ) : (
+                      <span className="text-gray-500">Not assigned</span>
+                    )}
                   </p>
+                </div>
+                <div>
+                  <span className="text-gray-600 font-medium">User ID:</span>
+                  <p className="text-sm text-gray-500">{receptionist.userId}</p>
                 </div>
                 <div>
                   <span className="text-gray-600 font-medium">Status:</span>

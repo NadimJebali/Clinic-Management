@@ -18,6 +18,42 @@ async function main() {
   await prisma.doctor.deleteMany();
   await prisma.receptionist.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.clinic.deleteMany();
+
+  // Create Clinics
+  console.log("Creating clinics...");
+  const clinic1 = await prisma.clinic.create({
+    data: {
+      name: "MedFlow Central Clinic",
+      address: "123 Medical Plaza, New York, NY 10001",
+      phone: "+1-555-0100",
+      email: "central@medflow.com",
+      description:
+        "Our flagship clinic offering comprehensive medical services including cardiology, pediatrics, and general medicine.",
+    },
+  });
+
+  const clinic2 = await prisma.clinic.create({
+    data: {
+      name: "MedFlow West Side",
+      address: "456 Healthcare Ave, Los Angeles, CA 90001",
+      phone: "+1-555-0200",
+      email: "westside@medflow.com",
+      description:
+        "Specialized clinic focusing on orthopedics, neurology, and sports medicine.",
+    },
+  });
+
+  const clinic3 = await prisma.clinic.create({
+    data: {
+      name: "MedFlow Pediatric Center",
+      address: "789 Children's Way, Chicago, IL 60601",
+      phone: "+1-555-0300",
+      email: "pediatrics@medflow.com",
+      description:
+        "Dedicated pediatric care center with child-friendly environment and experienced pediatricians.",
+    },
+  });
 
   // Create Admin
   console.log("Creating admin user...");
@@ -41,6 +77,7 @@ async function main() {
       receptionist: {
         create: {
           phone: "+1234567890",
+          clinicId: clinic1.id,
         },
       },
     },
@@ -55,6 +92,7 @@ async function main() {
       receptionist: {
         create: {
           phone: "+1234567891",
+          clinicId: clinic2.id,
         },
       },
     },
@@ -73,6 +111,7 @@ async function main() {
           specialty: "Cardiology",
           licenseNumber: "MD12345",
           phone: "+1234567892",
+          clinicId: clinic1.id,
         },
       },
     },
@@ -89,6 +128,7 @@ async function main() {
           specialty: "Pediatrics",
           licenseNumber: "MD12346",
           phone: "+1234567893",
+          clinicId: clinic3.id,
         },
       },
     },
@@ -105,6 +145,7 @@ async function main() {
           specialty: "Orthopedics",
           licenseNumber: "MD12347",
           phone: "+1234567894",
+          clinicId: clinic2.id,
         },
       },
     },
@@ -121,6 +162,7 @@ async function main() {
           specialty: "Dermatology",
           licenseNumber: "MD12348",
           phone: "+1234567895",
+          clinicId: clinic1.id,
         },
       },
     },
@@ -137,6 +179,7 @@ async function main() {
           specialty: "Neurology",
           licenseNumber: "MD12349",
           phone: "+1234567896",
+          clinicId: clinic2.id,
         },
       },
     },
@@ -160,6 +203,7 @@ async function main() {
           phone: "+1234567897",
           address: "123 Main St, New York, NY 10001",
           bloodType: "O+",
+          clinicId: clinic1.id,
         },
       },
     },
@@ -178,6 +222,7 @@ async function main() {
           phone: "+1234567899",
           address: "456 Oak Ave, Los Angeles, CA 90001",
           bloodType: "A+",
+          clinicId: clinic3.id,
         },
       },
     },
@@ -196,6 +241,7 @@ async function main() {
           phone: "+1234567901",
           address: "789 Pine Rd, Chicago, IL 60601",
           bloodType: "B+",
+          clinicId: clinic2.id,
         },
       },
     },
@@ -214,6 +260,7 @@ async function main() {
           phone: "+1234567903",
           address: "321 Elm St, Houston, TX 77001",
           bloodType: "AB+",
+          clinicId: clinic1.id,
         },
       },
     },
@@ -232,6 +279,7 @@ async function main() {
           phone: "+1234567905",
           address: "654 Maple Dr, Phoenix, AZ 85001",
           bloodType: "O-",
+          clinicId: clinic2.id,
         },
       },
     },
@@ -250,6 +298,7 @@ async function main() {
           phone: "+1234567907",
           address: "987 Cedar Ln, Philadelphia, PA 19101",
           bloodType: "A-",
+          clinicId: clinic1.id,
         },
       },
     },
@@ -268,6 +317,7 @@ async function main() {
           phone: "+1234567909",
           address: "147 Birch St, San Antonio, TX 78201",
           bloodType: "B-",
+          clinicId: clinic2.id,
         },
       },
     },
@@ -286,6 +336,7 @@ async function main() {
           phone: "+1234567911",
           address: "258 Willow Way, San Diego, CA 92101",
           bloodType: "O+",
+          clinicId: clinic3.id,
         },
       },
     },
@@ -560,30 +611,48 @@ async function main() {
   console.log("All users have password: 123456\n");
   console.log("Admin:");
   console.log("  Email: admin@medflow.com");
+  console.log("\n=== Clinics ===");
+  console.log("1. MedFlow Central Clinic (New York)");
+  console.log("2. MedFlow West Side (Los Angeles)");
+  console.log("3. MedFlow Pediatric Center (Chicago)");
   console.log("\nReceptionists:");
-  console.log("  Email: receptionist1@medflow.com (Sarah Johnson)");
-  console.log("  Email: receptionist2@medflow.com (Emily Davis)");
+  console.log(
+    "  Email: receptionist1@medflow.com (Sarah Johnson - Central Clinic)"
+  );
+  console.log("  Email: receptionist2@medflow.com (Emily Davis - West Side)");
   console.log("\nDoctors:");
-  console.log("  Email: dr.smith@medflow.com (Dr. John Smith - Cardiology)");
   console.log(
-    "  Email: dr.williams@medflow.com (Dr. Sarah Williams - Pediatrics)"
+    "  Email: dr.smith@medflow.com (Dr. John Smith - Cardiology - Central Clinic)"
   );
   console.log(
-    "  Email: dr.brown@medflow.com (Dr. Michael Brown - Orthopedics)"
+    "  Email: dr.williams@medflow.com (Dr. Sarah Williams - Pediatrics - Pediatric Center)"
   );
   console.log(
-    "  Email: dr.garcia@medflow.com (Dr. Maria Garcia - Dermatology)"
+    "  Email: dr.brown@medflow.com (Dr. Michael Brown - Orthopedics - West Side)"
   );
-  console.log("  Email: dr.lee@medflow.com (Dr. David Lee - Neurology)");
+  console.log(
+    "  Email: dr.garcia@medflow.com (Dr. Maria Garcia - Dermatology - Central Clinic)"
+  );
+  console.log(
+    "  Email: dr.lee@medflow.com (Dr. David Lee - Neurology - West Side)"
+  );
   console.log("\nPatients:");
-  console.log("  Email: patient1@example.com (Robert Anderson)");
-  console.log("  Email: patient2@example.com (Jennifer Martinez)");
-  console.log("  Email: patient3@example.com (Christopher Taylor)");
-  console.log("  Email: patient4@example.com (Amanda Wilson)");
-  console.log("  Email: patient5@example.com (Daniel Thompson)");
-  console.log("  Email: patient6@example.com (Elizabeth Moore)");
-  console.log("  Email: patient7@example.com (Matthew Jackson)");
-  console.log("  Email: patient8@example.com (Jessica White)");
+  console.log(
+    "  Email: patient1@example.com (Robert Anderson - Central Clinic)"
+  );
+  console.log(
+    "  Email: patient2@example.com (Jennifer Martinez - Pediatric Center)"
+  );
+  console.log("  Email: patient3@example.com (Christopher Taylor - West Side)");
+  console.log("  Email: patient4@example.com (Amanda Wilson - Central Clinic)");
+  console.log("  Email: patient5@example.com (Daniel Thompson - West Side)");
+  console.log(
+    "  Email: patient6@example.com (Elizabeth Moore - Central Clinic)"
+  );
+  console.log("  Email: patient7@example.com (Matthew Jackson - West Side)");
+  console.log(
+    "  Email: patient8@example.com (Jessica White - Pediatric Center)"
+  );
 }
 
 main()

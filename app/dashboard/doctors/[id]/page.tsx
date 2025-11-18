@@ -21,6 +21,7 @@ export default async function DoctorProfilePage({
     where: { id },
     include: {
       user: true,
+      clinic: true,
       appointments: {
         include: {
           patient: { include: { user: true } },
@@ -143,6 +144,21 @@ export default async function DoctorProfilePage({
                     License Number:
                   </span>
                   <p className="text-lg">{doctor.licenseNumber}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600 font-medium">Clinic:</span>
+                  <p className="text-lg">
+                    {doctor.clinic ? (
+                      <Link
+                        href={`/dashboard/clinics/${doctor.clinic.id}`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {doctor.clinic.name}
+                      </Link>
+                    ) : (
+                      <span className="text-gray-500">Not assigned</span>
+                    )}
+                  </p>
                 </div>
                 <div>
                   <span className="text-gray-600 font-medium">

@@ -21,9 +21,9 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  patient       Patient?
-  doctor        Doctor?
-  receptionist  Receptionist?
+  patient      Patient?
+  doctor       Doctor?
+  receptionist Receptionist?
 }
 
 enum Role {
@@ -33,75 +33,102 @@ enum Role {
   PATIENT
 }
 
+// Clinic model
+model Clinic {
+  id          String  @id @default(uuid())
+  name        String
+  address     String
+  phone       String
+  email       String
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  patients      Patient[]
+  doctors       Doctor[]
+  receptionists Receptionist[]
+}
+
 // Patient model
 model Patient {
-  id          String   @id @default(uuid())
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  clinicId String?
+  clinic   Clinic? @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+
   phone       String?
   address     String?
   dateOfBirth DateTime?
   gender      String?
   bloodType   String?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  appointments     Appointment[]
-  medicalRecords   MedicalRecord[]
-  prescriptions    Prescription[]
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  prescriptions  Prescription[]
 }
 
 // Doctor model
 model Doctor {
-  id            String   @id @default(uuid())
-  userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  clinicId String?
+  clinic   Clinic? @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+
   specialty     String
-  licenseNumber String   @unique
+  licenseNumber String  @unique
   phone         String?
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  appointments     Appointment[]
-  medicalRecords   MedicalRecord[]
-  prescriptions    Prescription[]
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  prescriptions  Prescription[]
 }
 
 // Receptionist model
 model Receptionist {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  phone     String?
-  
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  clinicId String?
+  clinic   Clinic? @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+
+  phone String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 // Appointment model
 model Appointment {
-  id          String            @id @default(uuid())
-  patientId   String
-  patient     Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  
-  doctorId    String
-  doctor      Doctor            @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  
-  dateTime    DateTime
-  duration    Int               // in minutes
-  status      AppointmentStatus @default(SCHEDULED)
-  reason      String?
-  notes       String?
-  
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id        String  @id @default(uuid())
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  dateTime DateTime
+  duration Int // in minutes
+  status   AppointmentStatus @default(SCHEDULED)
+  reason   String?
+  notes    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum AppointmentStatus {
@@ -113,38 +140,38 @@ enum AppointmentStatus {
 
 // Medical Record model
 model MedicalRecord {
-  id          String   @id @default(uuid())
-  patientId   String
-  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  
-  doctorId    String
-  doctor      Doctor   @relation(fields: [doctorId], references: [id])
-  
-  diagnosis   String
-  symptoms    String?
-  treatment   String?
-  notes       String?
-  visitDate   DateTime @default(now())
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String  @id @default(uuid())
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+
+  diagnosis String
+  symptoms  String?
+  treatment String?
+  notes     String?
+  visitDate DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Prescription model
 model Prescription {
-  id          String   @id @default(uuid())
-  patientId   String
-  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  
-  doctorId    String
-  doctor      Doctor   @relation(fields: [doctorId], references: [id])
-  
-  medication  String
-  dosage      String
-  frequency   String
-  duration    String
+  id        String  @id @default(uuid())
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+
+  medication   String
+  dosage       String
+  frequency    String
+  duration     String
   instructions String?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

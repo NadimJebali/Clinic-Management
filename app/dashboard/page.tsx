@@ -39,6 +39,11 @@ export default async function DashboardPage() {
         {role === "ADMIN" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <DashboardCard
+              title="Manage Clinics"
+              description="View and manage all clinics"
+              link="/dashboard/clinics"
+            />
+            <DashboardCard
               title="Manage Patients"
               description="View and manage all patients"
               link="/dashboard/patients"
@@ -75,6 +80,11 @@ export default async function DashboardPage() {
         {role === "DOCTOR" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <DashboardCard
+              title="Clinics"
+              description="View clinic information"
+              link="/dashboard/clinics"
+            />
+            <DashboardCard
               title="My Appointments"
               description="View your scheduled appointments"
               link="/dashboard/appointments"
@@ -101,6 +111,11 @@ export default async function DashboardPage() {
         {role === "RECEPTIONIST" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <DashboardCard
+              title="Clinics"
+              description="View clinic information"
+              link="/dashboard/clinics"
+            />
+            <DashboardCard
               title="Book Appointment"
               description="Schedule new appointment"
               link="/dashboard/appointments/new"
@@ -126,6 +141,11 @@ export default async function DashboardPage() {
         {/* Patient Dashboard */}
         {role === "PATIENT" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <DashboardCard
+              title="Clinics"
+              description="View clinic information"
+              link="/dashboard/clinics"
+            />
             <DashboardCard
               title="My Appointments"
               description="View your appointments"
