@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "@/lib/axios";
 
 export default function NewMedicalRecordPage() {
   const router = useRouter();
@@ -21,11 +22,10 @@ export default function NewMedicalRecordPage() {
     // Fetch patients
     async function fetchPatients() {
       try {
-        const response = await fetch("/api/patients");
-        const data = await response.json();
-        setPatients(data.patients || []);
-      } catch (err) {
-        console.error("Error fetching patients:", err);
+        const response = await axios.get("/patients");
+        setPatients(response.data.patients || []);
+      } catch (error: any) {
+        console.error("Error fetching patients:", error);
       }
     }
 
@@ -38,20 +38,12 @@ export default function NewMedicalRecordPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/medical-records", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || "Failed to create medical record");
-      } else {
-        router.push("/dashboard/medical-records");
-      }
-    } catch (err) {
-      setError("Something went wrong");
+      await axios.post("/medical-records", formData);
+      router.push("/dashboard/medical-records");
+    } catch (error: any) {
+      setError(
+        error.response?.data?.error || "Failed to create medical record"
+      );
     } finally {
       setLoading(false);
     }

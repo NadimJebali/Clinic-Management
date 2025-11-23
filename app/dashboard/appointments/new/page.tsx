@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "@/lib/axios";
 
 export default function NewAppointmentPage() {
   const router = useRouter();
@@ -23,15 +24,12 @@ export default function NewAppointmentPage() {
     async function fetchData() {
       try {
         const [patientsRes, doctorsRes] = await Promise.all([
-          fetch("/api/patients"),
-          fetch("/api/doctors"),
+          axios.get("/patients"),
+          axios.get("/doctors"),
         ]);
 
-        const patientsData = await patientsRes.json();
-        const doctorsData = await doctorsRes.json();
-
-        setPatients(patientsData.patients || []);
-        setDoctors(doctorsData.doctors || []);
+        setPatients(patientsRes.data.patients || []);
+        setDoctors(doctorsRes.data.doctors || []);
       } catch (err) {
         console.error("Error fetching data:", err);
       }
@@ -46,23 +44,13 @@ export default function NewAppointmentPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/appointments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          duration: parseInt(formData.duration),
-        }),
+      await axios.post("/appointments", {
+        ...formData,
+        duration: parseInt(formData.duration),
       });
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || "Failed to create appointment");
-      } else {
-        router.push("/dashboard/appointments");
-      }
-    } catch (err) {
-      setError("Something went wrong");
+      router.push("/dashboard/appointments");
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Something went wrong");
     } finally {
       setLoading(false);
     }

@@ -51,17 +51,10 @@ export default function MedicalRecordsList({
     setDeleting(id);
 
     try {
-      const response = await fetch(`/api/medical-records/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        router.refresh();
-      } else {
-        alert("Failed to delete medical record");
-      }
-    } catch (error) {
-      alert("Error deleting medical record");
+      await axios.delete(`/medical-records/${id}`);
+      router.refresh();
+    } catch (error: any) {
+      alert(error.response?.data?.error || "Error deleting medical record");
     } finally {
       setDeleting(null);
     }

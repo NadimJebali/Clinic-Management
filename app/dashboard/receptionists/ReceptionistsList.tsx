@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "@/lib/axios";
 
 interface Receptionist {
   id: string;
@@ -51,17 +52,10 @@ export default function ReceptionistsList({
     setDeleting(id);
 
     try {
-      const response = await fetch(`/api/receptionists/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        router.refresh();
-      } else {
-        alert("Failed to delete receptionist");
-      }
-    } catch (error) {
-      alert("Error deleting receptionist");
+      await axios.delete(`/receptionists/${id}`);
+      router.refresh();
+    } catch (error: any) {
+      alert(error.response?.data?.error || "Error deleting receptionist");
     } finally {
       setDeleting(null);
     }

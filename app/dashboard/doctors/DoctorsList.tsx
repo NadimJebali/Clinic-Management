@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "@/lib/axios";
 
 interface Doctor {
   id: string;
@@ -55,17 +56,10 @@ export default function DoctorsList({
     setDeleting(id);
 
     try {
-      const response = await fetch(`/api/doctors/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        router.refresh();
-      } else {
-        alert("Failed to delete doctor");
-      }
-    } catch (error) {
-      alert("Error deleting doctor");
+      await axios.delete(`/doctors/${id}`);
+      router.refresh();
+    } catch (error: any) {
+      alert(error.response?.data?.error || "Error deleting doctor");
     } finally {
       setDeleting(null);
     }

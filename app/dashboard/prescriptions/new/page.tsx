@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "@/lib/axios";
 
 export default function NewPrescriptionPage() {
   const router = useRouter();
@@ -22,11 +23,10 @@ export default function NewPrescriptionPage() {
     // Fetch patients
     async function fetchPatients() {
       try {
-        const response = await fetch("/api/patients");
-        const data = await response.json();
-        setPatients(data.patients || []);
-      } catch (err) {
-        console.error("Error fetching patients:", err);
+        const response = await axios.get("/patients");
+        setPatients(response.data.patients || []);
+      } catch (error: any) {
+        console.error("Error fetching patients:", error);
       }
     }
 
@@ -39,20 +39,10 @@ export default function NewPrescriptionPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/prescriptions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || "Failed to create prescription");
-      } else {
-        router.push("/dashboard/prescriptions");
-      }
-    } catch (err) {
-      setError("Something went wrong");
+      await axios.post("/prescriptions", formData);
+      router.push("/dashboard/prescriptions");
+    } catch (error: any) {
+      setError(error.response?.data?.error || "Failed to create prescription");
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "@/lib/axios";
 
 export default function NewPatientPage() {
   const router = useRouter();
@@ -25,20 +26,10 @@ export default function NewPatientPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/patients", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || "Failed to create patient");
-      } else {
-        router.push("/dashboard/patients");
-      }
-    } catch (err) {
-      setError("Something went wrong");
+      await axios.post("/patients", formData);
+      router.push("/dashboard/patients");
+    } catch (error: any) {
+      setError(error.response?.data?.error || "Failed to create patient");
     } finally {
       setLoading(false);
     }
@@ -56,7 +47,9 @@ export default function NewPatientPage() {
 
       <div className="container mx-auto p-6">
         <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-2xl text-black font-bold mb-6">Add New Patient</h1>
+          <h1 className="text-2xl text-black font-bold mb-6">
+            Add New Patient
+          </h1>
 
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">

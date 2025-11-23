@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import axios from "@/lib/axios";
 
 interface Appointment {
   id: string;
@@ -50,17 +51,10 @@ export default function AppointmentsList({
     setDeleting(id);
 
     try {
-      const response = await fetch(`/api/appointments/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        router.refresh();
-      } else {
-        alert("Failed to delete appointment");
-      }
-    } catch (error) {
-      alert("Error deleting appointment");
+      await axios.delete(`/appointments/${id}`);
+      router.refresh();
+    } catch (error: any) {
+      alert(error.response?.data?.error || "Error deleting appointment");
     } finally {
       setDeleting(null);
     }
@@ -70,26 +64,14 @@ export default function AppointmentsList({
     setUpdatingStatus(id);
 
     try {
-      const response = await fetch(`/api/appointments/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (response.ok) {
-        router.refresh();
-      } else {
-        const data = await response.json();
-        alert(
-          `Failed to update appointment status: ${
-            data.error || "Unknown error"
-          }`
-        );
-      }
-    } catch (error) {
-      alert("Error updating appointment status");
+      await axios.patch(`/appointments/${id}`, { status: newStatus });
+      router.refresh();
+    } catch (error: any) {
+      alert(
+        `Failed to update appointment status: ${
+          error.response?.data?.error || "Unknown error"
+        }`
+      );
     } finally {
       setUpdatingStatus(null);
     }

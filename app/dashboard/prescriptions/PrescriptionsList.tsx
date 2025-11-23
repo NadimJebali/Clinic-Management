@@ -52,17 +52,10 @@ export default function PrescriptionsList({
     setDeleting(id);
 
     try {
-      const response = await fetch(`/api/prescriptions/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        router.refresh();
-      } else {
-        alert("Failed to delete prescription");
-      }
-    } catch (error) {
-      alert("Error deleting prescription");
+      await axios.delete(`/prescriptions/${id}`);
+      router.refresh();
+    } catch (error: any) {
+      alert(error.response?.data?.error || "Error deleting prescription");
     } finally {
       setDeleting(null);
     }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "@/lib/axios";
 
 export default function NewReceptionistPage() {
   const router = useRouter();
@@ -23,22 +24,13 @@ export default function NewReceptionistPage() {
     };
 
     try {
-      const response = await fetch("/api/receptionists", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        router.push("/dashboard/receptionists");
-        router.refresh();
-      } else {
-        setError(result.error || "Failed to create receptionist");
-      }
-    } catch (err) {
-      setError("An error occurred. Please try again.");
+      await axios.post("/receptionists", data);
+      router.push("/dashboard/receptionists");
+      router.refresh();
+    } catch (error: any) {
+      setError(
+        error.response?.data?.error || "An error occurred. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -59,7 +51,6 @@ export default function NewReceptionistPage() {
 
       <div className="container mx-auto p-6">
         <div className="max-w-2xl mx-auto">
-
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
@@ -71,7 +62,9 @@ export default function NewReceptionistPage() {
             className="bg-white text-gray-600 rounded-lg shadow p-6"
           >
             <div className="space-y-4">
-              <h1 className="text-2xl text-black font-bold mb-6">Add New Receptionist</h1>
+              <h1 className="text-2xl text-black font-bold mb-6">
+                Add New Receptionist
+              </h1>
               <div>
                 <label
                   htmlFor="name"

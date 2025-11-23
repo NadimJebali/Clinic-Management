@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "@/lib/axios";
 
 export default function NewDoctorPage() {
   const router = useRouter();
@@ -25,22 +26,13 @@ export default function NewDoctorPage() {
     };
 
     try {
-      const response = await fetch("/api/doctors", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        router.push("/dashboard/doctors");
-        router.refresh();
-      } else {
-        setError(result.error || "Failed to create doctor");
-      }
-    } catch (err) {
-      setError("An error occurred. Please try again.");
+      await axios.post("/doctors", data);
+      router.push("/dashboard/doctors");
+      router.refresh();
+    } catch (err: any) {
+      setError(
+        err.response?.data?.error || "An error occurred. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -61,7 +53,6 @@ export default function NewDoctorPage() {
 
       <div className="container mx-auto p-6">
         <div className="max-w-2xl mx-auto">
-
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
@@ -72,7 +63,9 @@ export default function NewDoctorPage() {
             onSubmit={handleSubmit}
             className="bg-white rounded-lg shadow p-6"
           >
-            <h1 className="text-2xl text-black font-bold mb-6">Add New Doctor</h1>
+            <h1 className="text-2xl text-black font-bold mb-6">
+              Add New Doctor
+            </h1>
             <div className="space-y-4">
               {/* Name */}
               <div>

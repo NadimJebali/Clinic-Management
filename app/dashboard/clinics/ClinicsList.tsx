@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "@/lib/axios";
 
 interface Clinic {
   id: string;
@@ -57,17 +58,10 @@ export default function ClinicsList({
     setDeleting(id);
 
     try {
-      const response = await fetch(`/api/clinics/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        router.refresh();
-      } else {
-        alert("Failed to delete clinic");
-      }
-    } catch (error) {
-      alert("Error deleting clinic");
+      await axios.delete(`/clinics/${id}`);
+      router.refresh();
+    } catch (error: any) {
+      alert(error.response?.data?.error || "Error deleting clinic");
     } finally {
       setDeleting(null);
     }

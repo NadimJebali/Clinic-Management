@@ -18,31 +18,26 @@ export default async function NewClinicPage() {
   async function createClinic(formData: FormData) {
     "use server";
 
-    const name = formData.get("name");
-    const address = formData.get("address");
-    const phone = formData.get("phone");
-    const email = formData.get("email");
-    const description = formData.get("description");
+    const name = formData.get("name") as string;
+    const address = formData.get("address") as string;
+    const phone = formData.get("phone") as string;
+    const email = formData.get("email") as string;
+    const description = formData.get("description") as string;
 
-    const response = await fetch(
-      `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/clinics`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+    try {
+      await prisma.clinic.create({
+        data: {
           name,
           address,
           phone,
           email,
-          description,
-        }),
-      }
-    );
-
-    if (response.ok) {
+          description: description || null,
+        },
+      });
       redirect("/dashboard/clinics");
+    } catch (error) {
+      console.error("Error creating clinic:", error);
+      throw error;
     }
   }
 
