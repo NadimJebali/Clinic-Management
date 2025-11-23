@@ -1,21 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { requireRole, requireAuth } from "@/lib/auth-guards";
 
 export async function POST(request: NextRequest) {
+  const { error, session } = await requireRole(["DOCTOR"]);
+  if (error) return error;
+
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Only doctors can create prescriptions
-    if ((session as any).user?.role !== "DOCTOR") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
     const body = await request.json();
     const { patientId, medication, dosage, frequency, duration, instructions } =
       body;
@@ -55,13 +46,10 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
+  const { error, session } = await requireAuth();
+  if (error) return error;
+
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const prescriptions = await prisma.prescription.findMany({
       include: {
         doctor: { include: { user: true } },

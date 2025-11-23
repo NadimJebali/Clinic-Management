@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/auth-guards";
 
 export async function POST(request: NextRequest) {
   try {
+    const { error, session } = await requireAuth();
+    if (error) return error;
+
     const body = await request.json();
     const { patientId, doctorId, dateTime, duration, reason } = body;
 
@@ -29,6 +33,9 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
+    const { error, session } = await requireAuth();
+    if (error) return error;
+
     const appointments = await prisma.appointment.findMany({
       include: {
         doctor: { include: { user: true } },

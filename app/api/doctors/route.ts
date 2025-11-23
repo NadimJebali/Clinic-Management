@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { requireRole, requireAuth } from "@/lib/auth-guards";
 
 export async function GET() {
+  const { error, session } = await requireAuth();
+  if (error) return error;
+
   try {
     const doctors = await prisma.doctor.findMany({
       include: {
@@ -26,12 +28,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-
-  // Only admins can create doctors
-  if (!session || (session as any).user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-  }
+  const { error, session } = await requireRole(["ADMIN"]);
+  if (error) return error;
 
   try {
     const body = await request.json();

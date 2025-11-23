@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { requireAuth, requireRole } from "@/lib/auth-guards";
 
 // GET all clinics
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const { error, session } = await requireAuth();
+    if (error) return error;
 
     const clinics = await prisma.clinic.findMany({
       include: {
@@ -38,16 +34,8 @@ export async function GET() {
 // POST create new clinic
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Only admins can create clinics
-    if ((session as any).user?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const { error, session } = await requireRole(["ADMIN"]);
+    if (error) return error;
 
     const body = await request.json();
     const { name, address, phone, email, description } = body;

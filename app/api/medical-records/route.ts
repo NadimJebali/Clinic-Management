@@ -1,20 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { requireAuth, requireRole } from "@/lib/auth-guards";
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Only doctors can create medical records
-    if ((session as any).user?.role !== "DOCTOR") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const { error, session } = await requireRole(["DOCTOR"]);
+    if (error) return error;
 
     const body = await request.json();
     const { patientId, diagnosis, symptoms, treatment, notes } = body;
@@ -54,11 +45,8 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const { error, session } = await requireAuth();
+    if (error) return error;
 
     const medicalRecords = await prisma.medicalRecord.findMany({
       include: {

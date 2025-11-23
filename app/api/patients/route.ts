@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { requireRole, requireAuth } from "@/lib/auth-guards";
 
 export async function POST(request: NextRequest) {
+  const { error, session } = await requireRole(["ADMIN", "RECEPTIONIST"]);
+  if (error) return error;
+
   try {
     const body = await request.json();
     const {
@@ -63,6 +67,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
+  const { error, session } = await requireAuth();
+  if (error) return error;
+
   try {
     const patients = await prisma.patient.findMany({
       include: {

@@ -142,11 +142,6 @@ export default async function DashboardPage() {
         {role === "PATIENT" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <DashboardCard
-              title="Clinics"
-              description="View clinic information"
-              link="/dashboard/clinics"
-            />
-            <DashboardCard
               title="My Appointments"
               description="View your appointments"
               link="/dashboard/appointments"
