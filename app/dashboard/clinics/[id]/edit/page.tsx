@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Navbar from "@/components/Navbar";
 
 export default async function EditClinicPage({
   params,
@@ -59,14 +60,11 @@ export default async function EditClinicPage({
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-600">
-      <nav className="bg-blue-600 text-white p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <Link href="/dashboard" className="text-2xl font-bold">
-            MedFlow
-          </Link>
-          <span>{(session as any).user.name}</span>
-        </div>
-      </nav>
+      <Navbar
+        userName={(session as any).user.name}
+        userRole={(session as any).user.role}
+        showBackToDashboard={true}
+      />
 
       <div className="container mx-auto p-6">
         <div className="max-w-2xl mx-auto">

@@ -2,9 +2,11 @@ import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import Link from "next/link";
+import type { Session } from "next-auth";
+import Navbar from "@/components/Navbar";
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+  const session = (await getServerSession(authOptions)) as Session;
 
   if (!session) {
     redirect("/login");
@@ -14,22 +16,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Navigation Bar */}
-      <nav className="bg-blue-600 text-white p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold">MedFlow</h1>
-          <div className="flex items-center gap-4">
-            <span>{session.user.name}</span>
-            <span className="bg-blue-800 px-3 py-1 rounded">{role}</span>
-            <Link
-              href="/api/auth/signout"
-              className="bg-red-500 px-4 py-2 rounded hover:bg-red-600"
-            >
-              Logout
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar userName={session.user.name} userRole={role} />
 
       {/* Dashboard Content */}
       <div className="container mx-auto p-6">
@@ -80,11 +67,6 @@ export default async function DashboardPage() {
         {role === "DOCTOR" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <DashboardCard
-              title="Clinics"
-              description="View clinic information"
-              link="/dashboard/clinics"
-            />
-            <DashboardCard
               title="My Appointments"
               description="View your scheduled appointments"
               link="/dashboard/appointments"
@@ -110,11 +92,6 @@ export default async function DashboardPage() {
         {/* Receptionist Dashboard */}
         {role === "RECEPTIONIST" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <DashboardCard
-              title="Clinics"
-              description="View clinic information"
-              link="/dashboard/clinics"
-            />
             <DashboardCard
               title="Book Appointment"
               description="Schedule new appointment"

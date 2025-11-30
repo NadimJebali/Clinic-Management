@@ -33,7 +33,8 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { name, email, password, specialty, licenseNumber, phone } = body;
+    const { name, email, password, specialty, licenseNumber, phone, clinicId } =
+      body;
 
     // Validate required fields
     if (!name || !email || !password || !specialty || !licenseNumber) {
@@ -82,6 +83,7 @@ export async function POST(request: Request) {
             specialty,
             licenseNumber,
             phone: phone || null,
+            clinicId: clinicId || null,
           },
         },
       },

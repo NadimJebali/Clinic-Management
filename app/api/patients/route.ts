@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       dateOfBirth,
       gender,
       bloodType,
+      clinicId,
     } = body;
 
     // Check if user already exists
@@ -53,6 +54,7 @@ export async function POST(request: NextRequest) {
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
         gender,
         bloodType,
+        clinicId: clinicId || null,
       },
     });
 

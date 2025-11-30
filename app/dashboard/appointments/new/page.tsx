@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "@/lib/axios";
+import Navbar from "@/components/Navbar";
 
 export default function NewAppointmentPage() {
   const router = useRouter();
@@ -11,6 +12,8 @@ export default function NewAppointmentPage() {
   const [error, setError] = useState("");
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
+  const [currentPatient, setCurrentPatient] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string>("");
   const [formData, setFormData] = useState({
     patientId: "",
     doctorId: "",
@@ -20,16 +23,40 @@ export default function NewAppointmentPage() {
   });
 
   useEffect(() => {
-    // Fetch patients and doctors
+    // Fetch current user session and data
     async function fetchData() {
       try {
-        const [patientsRes, doctorsRes] = await Promise.all([
-          axios.get("/patients"),
-          axios.get("/doctors"),
-        ]);
+        // Get current session info via a custom endpoint
+        const sessionRes = await axios.get("/auth/session");
+        const role = sessionRes.data.user?.role;
+        setUserRole(role);
 
-        setPatients(patientsRes.data.patients || []);
-        setDoctors(doctorsRes.data.doctors || []);
+        if (role === "PATIENT") {
+          // If user is a patient, fetch only their own patient record
+          const patientsRes = await axios.get("/patients");
+          const allPatients = patientsRes.data.patients || [];
+          const myPatient = allPatients.find(
+            (p: any) => p.userId === sessionRes.data.user?.id
+          );
+
+          if (myPatient) {
+            setCurrentPatient(myPatient);
+            setFormData((prev) => ({ ...prev, patientId: myPatient.id }));
+          }
+
+          // Fetch doctors
+          const doctorsRes = await axios.get("/doctors");
+          setDoctors(doctorsRes.data.doctors || []);
+        } else {
+          // If user is admin/receptionist, fetch all patients and doctors
+          const [patientsRes, doctorsRes] = await Promise.all([
+            axios.get("/patients"),
+            axios.get("/doctors"),
+          ]);
+
+          setPatients(patientsRes.data.patients || []);
+          setDoctors(doctorsRes.data.doctors || []);
+        }
       } catch (err) {
         console.error("Error fetching data:", err);
       }
@@ -58,13 +85,7 @@ export default function NewAppointmentPage() {
 
   return (
     <div className="min-h-screen text-gray-600 bg-gray-100">
-      <nav className="bg-blue-600 text-white p-4">
-        <div className="container mx-auto">
-          <Link href="/dashboard" className="text-2xl font-bold">
-            MedFlow
-          </Link>
-        </div>
-      </nav>
+      <Navbar showBackToDashboard={true} />
 
       <div className="container mx-auto p-6">
         <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
@@ -77,24 +98,35 @@ export default function NewAppointmentPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-gray-700 mb-2">Patient *</label>
-              <select
-                value={formData.patientId}
-                onChange={(e) =>
-                  setFormData({ ...formData, patientId: e.target.value })
-                }
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Patient</option>
-                {patients.map((patient: any) => (
-                  <option key={patient.id} value={patient.id}>
-                    {patient.user.name} - {patient.user.email}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {currentPatient ? (
+              // If user is a patient, show their info as read-only
+              <div>
+                <label className="block text-gray-700 mb-2">Patient</label>
+                <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100">
+                  {currentPatient.user.name} - {currentPatient.user.email}
+                </div>
+              </div>
+            ) : (
+              // If user is admin/receptionist, show dropdown
+              <div>
+                <label className="block text-gray-700 mb-2">Patient *</label>
+                <select
+                  value={formData.patientId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, patientId: e.target.value })
+                  }
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select Patient</option>
+                  {patients.map((patient: any) => (
+                    <option key={patient.id} value={patient.id}>
+                      {patient.user.name} - {patient.user.email}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div>
               <label className="block text-gray-700 mb-2">Doctor *</label>

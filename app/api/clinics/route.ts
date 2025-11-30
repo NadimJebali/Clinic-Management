@@ -4,10 +4,10 @@ import { requireAuth, requireRole } from "@/lib/auth-guards";
 
 // GET all clinics
 export async function GET() {
-  try {
-    const { error, session } = await requireAuth();
-    if (error) return error;
+  const { error, session } = await requireRole(["ADMIN", "RECEPTIONIST"]);
+  if (error) return error;
 
+  try {
     const clinics = await prisma.clinic.findMany({
       include: {
         _count: {
@@ -21,7 +21,7 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(clinics);
+    return NextResponse.json({ clinics });
   } catch (error) {
     console.error("Error fetching clinics:", error);
     return NextResponse.json(
@@ -34,7 +34,7 @@ export async function GET() {
 // POST create new clinic
 export async function POST(request: Request) {
   try {
-    const { error, session } = await requireRole(["ADMIN"]);
+    const { error, session } = await requireRole(["ADMIN", "RECEPTIONIST"]);
     if (error) return error;
 
     const body = await request.json();

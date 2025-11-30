@@ -157,18 +157,26 @@ export default function DoctorsList({
                       href={`/dashboard/doctors/${doctor.id}`}
                       className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block"
                     >
-                      View Profile
+                      View
                     </Link>
                     {userRole === "ADMIN" && (
-                      <button
-                        onClick={() =>
-                          handleDelete(doctor.id, doctor.user.name)
-                        }
-                        disabled={deleting === doctor.id}
-                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:bg-gray-400"
-                      >
-                        {deleting === doctor.id ? "Deleting..." : "Delete"}
-                      </button>
+                      <>
+                        <Link
+                          href={`/dashboard/doctors/${doctor.id}/edit`}
+                          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 inline-block"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() =>
+                            handleDelete(doctor.id, doctor.user.name)
+                          }
+                          disabled={deleting === doctor.id}
+                          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:bg-gray-400"
+                        >
+                          {deleting === doctor.id ? "Deleting..." : "Delete"}
+                        </button>
+                      </>
                     )}
                   </div>
                 </td>

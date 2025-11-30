@@ -1,14 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "@/lib/axios";
+import Navbar from "@/components/Navbar";
 
 export default function NewDoctorPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [clinics, setClinics] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadClinics() {
+      try {
+        const res = await axios.get("/clinics");
+        setClinics(res.data.clinics || []);
+      } catch (err) {
+        console.error("Failed to load clinics:", err);
+      }
+    }
+    loadClinics();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -16,6 +30,7 @@ export default function NewDoctorPage() {
     setError("");
 
     const formData = new FormData(e.currentTarget);
+    const clinicId = formData.get("clinicId");
     const data = {
       name: formData.get("name"),
       email: formData.get("email"),
@@ -23,6 +38,7 @@ export default function NewDoctorPage() {
       specialty: formData.get("specialty"),
       licenseNumber: formData.get("licenseNumber"),
       phone: formData.get("phone"),
+      clinicId: clinicId || null,
     };
 
     try {
@@ -40,16 +56,7 @@ export default function NewDoctorPage() {
 
   return (
     <div className="min-h-screen text-gray-600 bg-gray-100">
-      <nav className="bg-blue-600 text-white p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <Link href="/dashboard" className="text-2xl font-bold">
-            MedFlow
-          </Link>
-          <Link href="/dashboard/doctors" className="hover:underline">
-            Back to Doctors
-          </Link>
-        </div>
-      </nav>
+      <Navbar showBackToDashboard={true} />
 
       <div className="container mx-auto p-6">
         <div className="max-w-2xl mx-auto">
@@ -173,6 +180,28 @@ export default function NewDoctorPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="+1234567890"
                 />
+              </div>
+
+              {/* Clinic */}
+              <div>
+                <label
+                  htmlFor="clinicId"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Clinic
+                </label>
+                <select
+                  id="clinicId"
+                  name="clinicId"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">No Clinic</option>
+                  {clinics.map((clinic) => (
+                    <option key={clinic.id} value={clinic.id}>
+                      {clinic.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 

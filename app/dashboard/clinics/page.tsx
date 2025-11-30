@@ -4,12 +4,18 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import ClinicsList from "./ClinicsList";
+import Navbar from "@/components/Navbar";
 
 export default async function ClinicsPage() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
     redirect("/login");
+  }
+
+  // Only admins can access clinics page
+  if ((session as any).user.role !== "ADMIN") {
+    redirect("/dashboard");
   }
 
   const clinics = await prisma.clinic.findMany({
@@ -27,14 +33,11 @@ export default async function ClinicsPage() {
 
   return (
     <div className="min-h-screen text-gray-600 bg-gray-100">
-      <nav className="bg-blue-600 text-white p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <Link href="/dashboard" className="text-2xl font-bold">
-            MedFlow
-          </Link>
-          <span>{(session as any).user.name}</span>
-        </div>
-      </nav>
+      <Navbar
+        userName={(session as any).user.name}
+        userRole={(session as any).user.role}
+        showBackToDashboard={true}
+      />
 
       <div className="container mx-auto p-6">
         <div className="flex justify-between items-center mb-6">

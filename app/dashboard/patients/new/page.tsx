@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "@/lib/axios";
+import Navbar from "@/components/Navbar";
 
 export default function NewPatientPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [clinics, setClinics] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,7 +20,20 @@ export default function NewPatientPage() {
     dateOfBirth: "",
     gender: "",
     bloodType: "",
+    clinicId: "",
   });
+
+  useEffect(() => {
+    async function loadClinics() {
+      try {
+        const res = await axios.get("/clinics");
+        setClinics(res.data.clinics || []);
+      } catch (err) {
+        console.error("Failed to load clinics:", err);
+      }
+    }
+    loadClinics();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,13 +52,7 @@ export default function NewPatientPage() {
 
   return (
     <div className="min-h-screen text-gray-600 bg-gray-100">
-      <nav className="bg-blue-600 text-white p-4">
-        <div className="container mx-auto">
-          <Link href="/dashboard" className="text-2xl font-bold">
-            MedFlow
-          </Link>
-        </div>
-      </nav>
+      <Navbar showBackToDashboard={true} />
 
       <div className="container mx-auto p-6">
         <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
@@ -159,6 +168,24 @@ export default function NewPatientPage() {
                   <option value="AB-">AB-</option>
                   <option value="O+">O+</option>
                   <option value="O-">O-</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-gray-700 mb-2">Clinic</label>
+                <select
+                  value={formData.clinicId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, clinicId: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">No Clinic</option>
+                  {clinics.map((clinic) => (
+                    <option key={clinic.id} value={clinic.id}>
+                      {clinic.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "@/lib/axios";
+import Navbar from "@/components/Navbar";
 
 export default function NewMedicalRecordPage() {
   const router = useRouter();
@@ -51,13 +52,7 @@ export default function NewMedicalRecordPage() {
 
   return (
     <div className="min-h-screen text-gray-600 bg-gray-100">
-      <nav className="bg-blue-600 text-white p-4">
-        <div className="container mx-auto">
-          <Link href="/dashboard" className="text-2xl font-bold">
-            MedFlow
-          </Link>
-        </div>
-      </nav>
+      <Navbar showBackToDashboard={true} />
 
       <div className="container mx-auto p-6">
         <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">

@@ -137,20 +137,31 @@ export default function ReceptionistsList({
                       href={`/dashboard/receptionists/${receptionist.id}`}
                       className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block"
                     >
-                      View Profile
+                      View
                     </Link>
                     {userRole === "ADMIN" && (
-                      <button
-                        onClick={() =>
-                          handleDelete(receptionist.id, receptionist.user.name)
-                        }
-                        disabled={deleting === receptionist.id}
-                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:bg-gray-400"
-                      >
-                        {deleting === receptionist.id
-                          ? "Deleting..."
-                          : "Delete"}
-                      </button>
+                      <>
+                        <Link
+                          href={`/dashboard/receptionists/${receptionist.id}/edit`}
+                          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 inline-block"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() =>
+                            handleDelete(
+                              receptionist.id,
+                              receptionist.user.name
+                            )
+                          }
+                          disabled={deleting === receptionist.id}
+                          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:bg-gray-400"
+                        >
+                          {deleting === receptionist.id
+                            ? "Deleting..."
+                            : "Delete"}
+                        </button>
+                      </>
                     )}
                   </div>
                 </td>
