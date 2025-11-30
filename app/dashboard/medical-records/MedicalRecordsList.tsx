@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import axios from "@/lib/axios";
 
 interface MedicalRecord {
   id: string;
