@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import { prisma } from "@/lib/prisma";
 
 export default async function NewClinicPage() {
   const session = await getServerSession(authOptions);
