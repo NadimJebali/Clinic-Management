@@ -62,6 +62,76 @@ export default function PrescriptionsList({
     }
   }
 
+  function handlePrint(prescription: Prescription) {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const content = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Prescription - ${prescription.medication}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+            h1 { color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
+            .header { margin-bottom: 30px; }
+            .section { margin-bottom: 20px; }
+            .label { font-weight: bold; color: #4b5563; }
+            .value { margin-left: 10px; }
+            .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; }
+            @media print { body { padding: 20px; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Medical Prescription</h1>
+            <p><span class="label">Date:</span><span class="value">${new Date(
+              prescription.createdAt
+            ).toLocaleDateString()}</span></p>
+          </div>
+          <div class="section">
+            <p><span class="label">Patient:</span><span class="value">${
+              prescription.patient.user.name
+            }</span></p>
+            <p><span class="label">Prescribing Doctor:</span><span class="value">${
+              prescription.doctor.user.name
+            }</span></p>
+          </div>
+          <div class="section">
+            <h2>Prescription Details</h2>
+            <p><span class="label">Medication:</span><span class="value">${
+              prescription.medication
+            }</span></p>
+            <p><span class="label">Dosage:</span><span class="value">${
+              prescription.dosage
+            }</span></p>
+            <p><span class="label">Frequency:</span><span class="value">${
+              prescription.frequency
+            }</span></p>
+            <p><span class="label">Duration:</span><span class="value">${
+              prescription.duration
+            }</span></p>
+            ${
+              prescription.instructions
+                ? `<p><span class="label">Instructions:</span><span class="value">${prescription.instructions}</span></p>`
+                : ""
+            }
+          </div>
+          <div class="footer">
+            <p>This is a computer-generated prescription. Please consult your doctor for any questions.</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
+  }
+
   return (
     <div className="space-y-4">
       {/* Search Bar */}
@@ -101,15 +171,37 @@ export default function PrescriptionsList({
           <div key={prescription.id} className="bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-start mb-2">
               <h3 className="text-lg font-bold">{prescription.medication}</h3>
-              {userRole === "ADMIN" && (
+              <div className="flex gap-2">
                 <button
-                  onClick={() => handleDelete(prescription.id)}
-                  disabled={deleting === prescription.id}
-                  className="bg-red-600 text-white px-2 py-1 rounded text-sm hover:bg-red-700 disabled:bg-gray-400"
+                  onClick={() => handlePrint(prescription)}
+                  className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 flex items-center gap-1"
+                  title="Print Prescription"
                 >
-                  {deleting === prescription.id ? "..." : "Delete"}
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                    />
+                  </svg>
+                  Print
                 </button>
-              )}
+                {userRole === "ADMIN" && (
+                  <button
+                    onClick={() => handleDelete(prescription.id)}
+                    disabled={deleting === prescription.id}
+                    className="bg-red-600 text-white px-2 py-1 rounded text-sm hover:bg-red-700 disabled:bg-gray-400"
+                  >
+                    {deleting === prescription.id ? "..." : "Delete"}
+                  </button>
+                )}
+              </div>
             </div>
             <div className="space-y-2 text-sm">
               <div>

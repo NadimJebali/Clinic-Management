@@ -61,6 +61,90 @@ export default function MedicalRecordsList({
     }
   }
 
+  function handlePrint(record: MedicalRecord) {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const content = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Medical Record - ${record.diagnosis}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+            h1 { color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
+            .header { margin-bottom: 30px; }
+            .section { margin-bottom: 20px; padding: 15px; background: #f9fafb; border-radius: 8px; }
+            .label { font-weight: bold; color: #4b5563; display: block; margin-bottom: 5px; }
+            .value { color: #1f2937; }
+            .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; }
+            @media print { body { padding: 20px; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Medical Record</h1>
+            <p><span class="label">Visit Date:</span><span class="value">${new Date(
+              record.visitDate
+            ).toLocaleDateString()}</span></p>
+          </div>
+          <div class="section">
+            <p><span class="label">Patient:</span><span class="value">${
+              record.patient.user.name
+            }</span></p>
+            <p><span class="label">Attending Doctor:</span><span class="value">${
+              record.doctor.user.name
+            }</span></p>
+          </div>
+          <div class="section">
+            <span class="label">Diagnosis:</span>
+            <p class="value">${record.diagnosis}</p>
+          </div>
+          ${
+            record.symptoms
+              ? `
+            <div class="section">
+              <span class="label">Symptoms:</span>
+              <p class="value">${record.symptoms}</p>
+            </div>
+          `
+              : ""
+          }
+          ${
+            record.treatment
+              ? `
+            <div class="section">
+              <span class="label">Treatment:</span>
+              <p class="value">${record.treatment}</p>
+            </div>
+          `
+              : ""
+          }
+          ${
+            record.notes
+              ? `
+            <div class="section">
+              <span class="label">Additional Notes:</span>
+              <p class="value">${record.notes}</p>
+            </div>
+          `
+              : ""
+          }
+          <div class="footer">
+            <p>This is a confidential medical document. Handle with care.</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
+  }
+
   return (
     <div className="space-y-4">
       {/* Search Bar */}
@@ -143,15 +227,37 @@ export default function MedicalRecordsList({
                 )}
               </div>
 
-              {userRole === "ADMIN" && (
+              <div className="ml-4 flex flex-col gap-2">
                 <button
-                  onClick={() => handleDelete(record.id)}
-                  disabled={deleting === record.id}
-                  className="ml-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:bg-gray-400"
+                  onClick={() => handlePrint(record)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-2 whitespace-nowrap"
+                  title="Print Medical Record"
                 >
-                  {deleting === record.id ? "Deleting..." : "Delete"}
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                    />
+                  </svg>
+                  Print
                 </button>
-              )}
+                {userRole === "ADMIN" && (
+                  <button
+                    onClick={() => handleDelete(record.id)}
+                    disabled={deleting === record.id}
+                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:bg-gray-400"
+                  >
+                    {deleting === record.id ? "Deleting..." : "Delete"}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ))}
